@@ -6,41 +6,26 @@ adguard_config_dir: /etc/adguard
 adguard_db_dir: /var/lib/adguard
 adguard_system_user: "{{ prometheus_user | default('adguard') }}"
 adguard_system_group: "{{ prometheus_group | default('adguard') }}"
+adguard_hostname: "{{ ansible_hostname }}"
 adguard_web_listen_port: 3200
 adguard_web_listen_address: 0.0.0.0
 adguard_limit_nofile: 8192
 #adguard_http_proxy: http://proxy:3128
 #adguard_https_proxy: http://proxy:3128
 adguard_config:
-  bind_host: "{{ adguard_web_listen_address }}"
-  bind_port: "{{ adguard_web_listen_port }}"
-  beta_bind_port: 0
+  http:
+    address: "{{ adguard_web_listen_address }}:{{ adguard_web_listen_port }}"
   users:
     - name: admin
       password: $2y$12$SMsrAS0r0FPvpBPDPJygD.GO7V7jeUd2GI2KN.l.rubeV6aKVauEy #Admin
   auth_attempts: 5
   block_auth_min: 15
   http_proxy: ""
-  language: ""
-  debug_pprof: false
-  web_session_ttl: 720
   dns:
     bind_hosts:
       - "{{ adguard_web_listen_address }}"
     port: 53
-    statistics_interval: 90
-    querylog_enabled: true
-    querylog_file_enabled: true
-    querylog_interval: 2160h
-    querylog_size_memory: 1000
     anonymize_client_ip: false
-    protection_enabled: true
-    blocking_mode: default
-    blocking_ipv4: ""
-    blocking_ipv6: ""
-    blocked_response_ttl: 10
-    parental_block_host: family-block.dns.adguard.com
-    safebrowsing_block_host: standard-block.dns.adguard.com
     ratelimit: 20
     ratelimit_whitelist: []
     refuse_any: true
@@ -49,61 +34,81 @@ adguard_config:
       - https://dns.cloudflare.com/dns-query
     upstream_dns_file: ""
     bootstrap_dns:
-    - 9.9.9.10
-    - 8.8.8.8
-    - 1.1.1.1
-    - 2620:fe::fe:10
-    all_servers: false
-    fastest_addr: false
+      - 9.9.9.10
+      - 8.8.8.8
+      - 1.1.1.1
+      - 2620:fe::fe:10
+    fallback_dns:
+      - 8.8.4.4
+      - 1.0.0.1
+      - 2001:4860:4860::8844
     use_private_ptr_resolvers: false
     local_ptr_upstreams: []
     upstream_mode: load_balance
+    fastest_timeout: 10s
     use_http3_upstreams: true
-    edns_client_subnet: false
+    use_dns64: false
+    dns64_prefixes: []
+    edns_client_subnet:
+      custom_ip: ""
+      enabled: false
+    use_custom: false
     allowed_clients: []
     disallowed_clients: []
     blocked_hosts:
       - version.bind
       - id.server
       - hostname.bind
+    trusted_proxies:
+      - 127.0.0.0/8
+      - ::1/128
     cache_size: 4194304
     cache_ttl_min: 0
     cache_ttl_max: 0
+    cache_optimistic: false
     bogus_nxdomain: []
-    aaaa_disabled: false
     enable_dnssec: false
-    edns_client_subnet: false
+    aaaa_disabled: false
     max_goroutines: 300
     ipset: []
+    ipset_file: ""
+    upstream_timeout: 15s
+    resolve_clients: true
+    serve_http3: true
+    theme: auto
+    serve_plain_dns: true
+    hostsfile_enabled: true
+  filtering:
+    protection_enabled: true
     filtering_enabled: true
-    filters_update_interval: 24
+    blocked_response_ttl: 10
+    parental_block_host: family-block.dns.adguard.com
+    safebrowsing_block_host: standard-block.dns.adguard.com
     parental_enabled: false
-    safesearch_enabled: false
+    safe_search:
+      enabled: false
     safebrowsing_enabled: false
     safebrowsing_cache_size: 1048576
     safesearch_cache_size: 1048576
     parental_cache_size: 1048576
-    cache_time: 30
     rewrites: []
-    blocked_services: []
-    local_domain_name: ""
-    resolve_clients: true
-    local_ptr_upstreams: []
-  tls:
-    enabled: false
-    server_name: ""
-    force_https: false
-    port_https: 443
-    port_dns_over_tls: 853
-    port_dns_over_quic: 784
-    port_dnscrypt: 0
-    dnscrypt_config_file: ""
-    allow_unencrypted_doh: false
-    strict_sni_check: false
-    certificate_chain: ""
-    private_key: ""
-    certificate_path: ""
-    private_key_path: ""
+    filters_update_interval: 24
+    blocked_services:
+      schedule:
+        time_zone: Local
+      ids: []
+  querylog:
+    enabled: true
+    file_enabled: true
+    interval: 2160h
+    size_memory: 2000
+    ignored: []
+    dir_path: ""
+  statistics:
+    enabled: true
+    interval: 2160h
+    ignored: []
+    dir_path: ""
   filters:
     - enabled: true
       url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
@@ -133,7 +138,6 @@ adguard_config:
       url: https://raw.githubusercontent.com/crazy-max/WindowsSpyBlocker/master/data/hosts/spy.txt
       name: WindowsSpyBlocker - Hosts spy rules
       id: 1632955585
-  user_rules: []
   dhcp:
     enabled: false
     interface_name: ""
@@ -143,34 +147,40 @@ adguard_config:
       range_start: ""
       range_end: ""
       lease_duration: 86400
-      icmp_timeout_msec: 1000
       options: []
     dhcpv6:
       range_start: ""
       lease_duration: 86400
       ra_slaac_only: false
-      ra_allow_slaac: false
-      # local_domain_name: "" # beginning with version v0.108
+      ra_allow_slaac: true
+    local_domain_name: "lan"
   tls:
     enabled: false
     server_name: "{{ adguard_hostname }}"
     force_https: false
     port_https: 443
-    port_dns_over_tls: 0
-    port_dns_over_quic: 0
+    port_dns_over_tls: 853
+    port_dns_over_quic: 853
     port_dnscrypt: 0
     dnscrypt_config_file: ""
     allow_unencrypted_doh: false
     certificate_chain: ""
-    # TODO: certificate_path and private_key_path still seem to work, although they are not available in the documentation
     certificate_path: ""
-    strict_sni_check: false
     private_key: ""
-    # TODO: certificate_path and private_key_path still seem to work, although they are not available in the documentation
     private_key_path: ""
+    strict_sni_check: false
     icmp_timeout_msec: 1000
+  user_rules: []
   os:
     group: "{{ adguard_system_user }}"
     user: "{{ adguard_system_user }}"
     rlimit_nofile: "{{ adguard_limit_nofile }}"
-  schema_version: 12
+    clients: []
+  log:
+    file: ""
+    compress: true
+    max_backups: 3
+    max_size: 5
+    max_age: 90
+    verbose: false
+  schema_version: 28
