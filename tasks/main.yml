@@ -60,7 +60,7 @@
 
 - name: "Set installed adguard version to {{ __adguard_current_version_output.stdout_lines[0].split(' ')[3][1:] }}"
   ansible.builtin.set_fact:
-    adguard_installed_version:  "{{ __adguard_current_version_output.stdout_lines[0].split(' ')[3][1:] }}"
+    adguard_installed_version: "{{ __adguard_current_version_output.stdout_lines[0].split(' ')[3][1:] }}"
   when: __adguard_is_installed.stat.exists
   tags: adguard
 
@@ -99,7 +99,7 @@
   tags: adguard
   when: (not __adguard_is_installed.stat.exists) or (adguard_installed_version != adguard_version)
 
-- name: Download binary 
+- name: Download binary
   ansible.builtin.get_url:
     url: "https://github.com/AdguardTeam/AdGuardHome/releases/download/v{{ adguard_version }}/AdGuardHome_linux_{{ go_arch }}.tar.gz"
     dest: "{{ adguard_local_tempdir.path }}/adguard-{{ adguard_version }}.linux-{{ go_arch }}.tar.gz"
