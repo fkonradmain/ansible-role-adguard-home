@@ -14,6 +14,10 @@ adguard_limit_nofile: 8192
 adguard_config:
   http:
     address: "{{ adguard_web_listen_address }}:{{ adguard_web_listen_port }}"
+    session_ttl: 720
+    pprof:
+      enabled: false
+      port: 6060
   users:
     - name: admin
       password: $2y$12$SMsrAS0r0FPvpBPDPJygD.GO7V7jeUd2GI2KN.l.rubeV6aKVauEy #Admin
@@ -80,6 +84,7 @@ adguard_config:
   filtering:
     protection_enabled: true
     filtering_enabled: true
+    blocking_mode: default
     blocked_response_ttl: 10
     parental_block_host: family-block.dns.adguard.com
     safebrowsing_block_host: standard-block.dns.adguard.com
@@ -100,7 +105,7 @@ adguard_config:
     enabled: true
     file_enabled: true
     interval: 2160h
-    size_memory: 2000
+    size_memory: 1000
     ignored: []
     dir_path: ""
   statistics:
@@ -146,7 +151,6 @@ adguard_config:
       range_start: ""
       range_end: ""
       lease_duration: 86400
-      icmp_timeout_msec: 1000
       options: []
     dhcpv6:
       range_start: ""
