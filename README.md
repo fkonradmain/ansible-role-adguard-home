@@ -56,8 +56,8 @@ All variables which can be overridden are stored in [defaults/main.yml](defaults
 | `adguard_config_dir` | /etc/adguard | Path to directory with adguard-home configuration |
 | `adguard_db_dir` | /var/lib/adguard | Path to directory with adguard-home database |
 | `adguard_binary_install_dir` | /usr/local/bin | Binary install dir |
-| `adguard_system_user` | "{{ prometheus_user \| default('adguard') }}" | Service User |
-| `adguard_system_group` | "{{ prometheus_group \| default('adguard') }}" | Serviceuser Group |
+| `adguard_system_user` | "{{ adguard_user \| default('adguard') }}" | Service User |
+| `adguard_system_group` | "{{ adguard_group \| default('adguard') }}" | Serviceuser Group |
 | `adguard_limit_nofile` | 8192 | Limit NoFile |
 | `#adguard_http_proxy` | http://proxy:3128 | Set Proxy in System unit as Environment |
 | `#adguard_https_proxy` | http://proxy:3128 | Set Proxy in System unit as Environment |

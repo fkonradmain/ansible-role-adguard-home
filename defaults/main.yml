@@ -4,8 +4,8 @@ adguard_version: 0.107.52
 adguard_binary_install_dir: /usr/local/bin
 adguard_config_dir: /etc/adguard
 adguard_db_dir: /var/lib/adguard
-adguard_system_user: "{{ prometheus_user | default('adguard') }}"
-adguard_system_group: "{{ prometheus_group | default('adguard') }}"
+adguard_system_user: "{{ adguard_user | default('adguard') }}"
+adguard_system_group: "{{ adguard_group | default('adguard') }}"
 adguard_web_listen_port: 3200
 adguard_web_listen_address: 0.0.0.0
 adguard_limit_nofile: 8192
@@ -98,8 +98,6 @@ adguard_config:
     rewrites: []
     filters_update_interval: 24
     blocked_services:
-      schedule:
-        time_zone: Local
       ids: []
   querylog:
     enabled: true
@@ -146,7 +144,7 @@ adguard_config:
     enabled: false
     interface_name: ""
     dhcpv4:
-      gateway_ip: "{{ adguard_web_listen_address }}"
+      gateway_ip: ""
       subnet_mask: ""
       range_start: ""
       range_end: ""
@@ -180,9 +178,10 @@ adguard_config:
   clients: []
   log:
     file: ""
-    compress: true
-    max_backups: 3
+    compress: false
+    local_time: false
+    max_backups: 0
     max_size: 5
-    max_age: 90
+    max_age: 3
     verbose: false
   schema_version: 28
