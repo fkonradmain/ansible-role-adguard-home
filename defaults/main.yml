@@ -1,6 +1,6 @@
 ---
 proxy_env: {}
-adguard_version: 0.107.51
+adguard_version: 0.107.52
 adguard_binary_install_dir: /usr/local/bin
 adguard_config_dir: /etc/adguard
 adguard_db_dir: /var/lib/adguard
@@ -40,7 +40,7 @@ adguard_config:
     fallback_dns:
       - 8.8.4.4
       - 1.0.0.1
-      - 2001:4860:4860::8844
+      - 2620:fe::fe:10
     use_private_ptr_resolvers: false
     local_ptr_upstreams: []
     upstream_mode: load_balance
@@ -146,12 +146,13 @@ adguard_config:
       range_start: ""
       range_end: ""
       lease_duration: 86400
+      icmp_timeout_msec: 1000
       options: []
     dhcpv6:
       range_start: ""
       lease_duration: 86400
       ra_slaac_only: false
-      ra_allow_slaac: true
+      ra_allow_slaac: false
     local_domain_name: "lan"
   tls:
     enabled: false
@@ -167,13 +168,12 @@ adguard_config:
     private_key: ""
     private_key_path: ""
     strict_sni_check: false
-    icmp_timeout_msec: 1000
   user_rules: []
   os:
     group: "{{ adguard_system_user }}"
     user: "{{ adguard_system_user }}"
     rlimit_nofile: "{{ adguard_limit_nofile }}"
-    clients: []
+  clients: []
   log:
     file: ""
     compress: true
